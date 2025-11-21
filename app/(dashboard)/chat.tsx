@@ -1,11 +1,14 @@
 import { Ionicons } from '@expo/vector-icons'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 
 const DB = require('../../DB.json')
-const chats = Object.values(DB.chats || {}) as any[]
+const chats = Object.entries(DB.chats || {}) as [string, any][]
 
 export default function Chat() {
+  const router = useRouter()
+
   return (
     <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 96 }}>
       <View className="px-4 pt-6">
@@ -21,8 +24,12 @@ export default function Chat() {
 
         {/* Chat list */}
         <View>
-          {chats.map((it, idx) => (
-            <TouchableOpacity key={idx} className="flex-row items-center py-3 border-b border-gray-100">
+          {chats.map(([key, it]) => (
+            <TouchableOpacity
+              key={key}
+              className="flex-row items-center py-3 border-b border-gray-100"
+              onPress={() => router.push({ pathname: '/(dashboard)/chat/[id]', params: { id: key } } as any)}
+            >
               <View className="w-12 h-12 rounded-full bg-gray-100 items-center justify-center mr-3">
                 <Ionicons name="image-outline" size={20} color="#9CA3AF" />
               </View>
