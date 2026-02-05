@@ -2,19 +2,18 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
-// Generate static description based on detected item
+
 const getStaticDescription = (itemClass: string): string => {
   const descriptions: { [key: string]: string } = {
-    'Pe shirt': 'High-quality PE shirt, perfect condition. Ideal for physical education, sports, or casual wear. Well-maintained and ready to use.',
-    'Pe pant': 'Durable PE pants in excellent condition. Great for sports activities, physical education, or athletic use. Comfortable fit and quality material.',
-    'Skirt': 'Stylish skirt in good condition. Versatile piece suitable for casual or formal occasions. Quality fabric and neat finish.',
-    'White Shirt': 'Clean white shirt in perfect condition. Versatile classic piece suitable for various occasions. Quality fabric and excellent condition.',
-    'UC VEST': 'UC branded vest in excellent condition. Perfect for university events, casual wear, or sports activities. Quality embroidered logo.',
+    'Pe shirt': 'Pe shirt. Add more description',
+    'Pe pant': 'Pe pant. Add more description',
+    'Skirt': 'Skirt. Add more description.',
+    'White Shirt': 'White Shirt. Add more description.',
+    'UC VEST': 'UC Vest. Add more description.',
   }
   return descriptions[itemClass] || descriptions['Unknown']
 }
 
-// Get default price for each item type
 const getDefaultPrice = (itemClass: string): string => {
   const prices: { [key: string]: string } = {
     'Pe shirt': '250',
@@ -26,7 +25,7 @@ const getDefaultPrice = (itemClass: string): string => {
   return prices[itemClass] || '0'
 }
 
-// Get default tags for item type
+
 const getDefaultTags = (itemClass: string): string[] => {
   if (!itemClass || itemClass === 'Unknown') {
     return []
@@ -34,22 +33,22 @@ const getDefaultTags = (itemClass: string): string[] => {
   return [itemClass.toLowerCase().replace(/\s+/g, '')]
 }
 
-// Image recognition function using detection data
+
 const recognizeImage = (itemClass?: string, confidence?: string) => {
-  return new Promise((resolve) => {
+  return new Promise((itemInfo) => {
     setTimeout(() => {
       const item = itemClass || 'Unknown'
       const desc = getStaticDescription(item)
       const price = getDefaultPrice(item)
       const tags = getDefaultTags(item)
       const title = item === 'Unknown' ? '' : item
-      resolve({
+      itemInfo({
         title: title,
         price: price,
         description: desc,
         tags: tags,
       })
-    }, 1500) // Simulate network delay
+    }, 3000) // Simulate network delay
   })
 }
 
