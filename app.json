@@ -19,7 +19,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.asiu.unisuki"
     },
     "web": {
       "bundler": "metro",
@@ -41,15 +46,21 @@
         }
       ],
       [
-       "expo-camera",
-       {
-         "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
-       }
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7ed82653-cc07-465b-acb5-57901b27350c"
+      }
     }
   }
 }
