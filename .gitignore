@@ -44,3 +44,4 @@ app-example
 
 .env
 .env.d.ts
+firebaseConfig.js
