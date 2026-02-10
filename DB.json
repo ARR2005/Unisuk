@@ -4,8 +4,8 @@
       "title": "Ballpen Deli",
       "image_uri": "Ballpen_deli.jpg",
       "description": "This is a Ballpen Deli.",
-      "support_images": [],
-      "price": 3888,
+      "support_images": ["Blazer.jpg", "Blazer3.jpg", "BlazerJacket.jpg"],
+      "price": 388,
       "type": "miscellaneous",
       "size": "L"
     },
@@ -13,8 +13,8 @@
       "title": "Blazer",
       "image_uri": "Blazer.jpg",
       "description": "This is a Blazer.",
-      "support_images": [],
-      "price": 2899,
+      "support_images": ["Ballpen_deli.jpg", "Blazer3.jpg", "BlazerJacket.jpg"],
+      "price": 289,
       "type": "clothes",
       "size": "L"
     },
@@ -22,8 +22,8 @@
       "title": "Blazer3",
       "image_uri": "Blazer3.jpg",
       "description": "This is a Blazer.",
-      "support_images": [],
-      "price": 4249,
+      "support_images": ["Ballpen_deli.jpg", "Blazer.jpg", "BlazerJacket.jpg"],
+      "price": 424,
       "type": "clothes",
       "size": "S"
     },
@@ -32,7 +32,7 @@
       "image_uri": "BlazerJacket.jpg",
       "description": "This is a Blazer jacket.",
       "support_images": [],
-      "price": 1283,
+      "price": 128,
       "type": "clothes",
       "size": "M"
     },
@@ -41,7 +41,7 @@
       "image_uri": "College_Pe.png",
       "description": "This is a College PE Shirt.",
       "support_images": [],
-      "price": 2420,
+      "price": 242,
       "type": "clothes",
       "size": "L"
     },
@@ -50,7 +50,7 @@
       "image_uri": "deftac_ucshirt.png",
       "description": "This is a Deftac Ucshirt.",
       "support_images": [],
-      "price": 2688,
+      "price": 268,
       "type": "clothes",
       "size": "L"
     },
@@ -59,7 +59,7 @@
       "image_uri": "download (1).jpg",
       "description": "This is a Download (1).",
       "support_images": [],
-      "price": 1396,
+      "price": 139,
       "type": "miscellaneous",
       "size": "S"
     },
@@ -68,7 +68,7 @@
       "image_uri": "Elements of finance Book.png",
       "description": "This is a Elements Of Finance Book.",
       "support_images": [],
-      "price": 3169,
+      "price": 316,
       "type": "books",
       "size": "S"
     },
@@ -77,7 +77,7 @@
       "image_uri": "fx-82es_calculator.png",
       "description": "This is a Fx-82es Calculator.",
       "support_images": [],
-      "price": 3816,
+      "price": 381,
       "type": "gadgets",
       "size": "M"
     },
@@ -86,7 +86,7 @@
       "image_uri": "Headset_wireless.jpg",
       "description": "This is a Headset Wireless.",
       "support_images": [],
-      "price": 1083,
+      "price": 108,
       "type": "gadgets",
       "size": "XL"
     },
@@ -95,7 +95,7 @@
       "image_uri": "Heartbet_Checker.png",
       "description": "This is a Heartbet Checker.",
       "support_images": [],
-      "price": 4183,
+      "price": 418,
       "type": "miscellaneous",
       "size": "S"
     },
@@ -113,7 +113,7 @@
       "image_uri": "leather_shoe_used.png",
       "description": "This is a Leather Shoe Used.",
       "support_images": [],
-      "price": 3139,
+      "price": 313,
       "type": "shoes",
       "size": "XL"
     },
@@ -122,7 +122,7 @@
       "image_uri": "Miniskirt.jpg",
       "description": "This is a Miniskirt.",
       "support_images": [],
-      "price": 2727,
+      "price": 272,
       "type": "clothes",
       "size": "M"
     },
@@ -131,7 +131,7 @@
       "image_uri": "Miniskirt2.jpg",
       "description": "This is a Miniskirt2.",
       "support_images": [],
-      "price": 2690,
+      "price": 269,
       "type": "clothes",
       "size": "XL"
     },
@@ -140,7 +140,7 @@
       "image_uri": "NSTP_Shirt.webp",
       "description": "This is a Nstp Shirt.",
       "support_images": [],
-      "price": 1421,
+      "price": 142,
       "type": "clothes",
       "size": "S"
     },
@@ -149,7 +149,7 @@
       "image_uri": "Nstp_Shirts1.webp",
       "description": "This is a Nstp Shirts1.",
       "support_images": [],
-      "price": 3524,
+      "price": 352,
       "type": "clothes",
       "size": "S"
     },
@@ -158,7 +158,7 @@
       "image_uri": "Nursing_garment.png",
       "description": "This is a Nursing Garment.",
       "support_images": [],
-      "price": 2045,
+      "price": 204,
       "type": "clothes",
       "size": "L"
     },
@@ -167,7 +167,7 @@
       "image_uri": "nursing_pants .png",
       "description": "This is a Nursing Pants .",
       "support_images": [],
-      "price": 4356,
+      "price": 435,
       "type": "clothes",
       "size": "M"
     },
@@ -176,7 +176,7 @@
       "image_uri": "Pe_pants.jpg",
       "description": "This is a Pe Pants.",
       "support_images": [],
-      "price": 1058,
+      "price": 105,
       "type": "clothes",
       "size": "XL"
     },
@@ -185,7 +185,7 @@
       "image_uri": "Uc_Jacket.png",
       "description": "This is a Uc Jacket.",
       "support_images": [],
-      "price": 2874,
+      "price": 287,
       "type": "clothes",
       "size": "XL"
     },
@@ -194,7 +194,7 @@
       "image_uri": "white_nursing_shoe_used.png",
       "description": "This is a White Nursing Shoe Used.",
       "support_images": [],
-      "price": 4534,
+      "price": 453,
       "type": "shoes",
       "size": "M"
     }
