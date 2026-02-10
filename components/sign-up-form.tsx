@@ -18,20 +18,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Link, useRouter } from 'expo-router';
+import { getAuth } from 'firebase/auth';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
-import { signUp as firebaseSignUp } from '../firebaseConfig';
+import { signUp as firebaseSignUp, initializeUserCoupons, initializeUserItems, saveUserProfile } from '../firebaseConfig';
+import { PersonalInfoModal } from './PersonalInfoModal';
 
 export function SignUpForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
   const rePasswordInputRef = React.useRef<TextInput>(null);
   const [isModalVisible, setModalVisible] = React.useState(false);
-  const router = useRouter();
+  const [showPersonalInfoModal, setShowPersonalInfoModal] = React.useState(false);
+  const [router] = React.useState(useRouter());
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [rePassword, setRePassword] = React.useState('');
   const [errors, setErrors] = React.useState({ email: '', password: '', rePassword: '', form: '' });
   const [loading, setLoading] = React.useState(false);
+  const [currentUserUID, setCurrentUserUID] = React.useState<string | null>(null);
 
   function onEmailSubmitEditing() {
     passwordInputRef.current?.focus();
@@ -73,7 +77,15 @@ export function SignUpForm() {
     (async () => {
       try {
         await firebaseSignUp(email, password);
-        router.replace('/(onboarding)');
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+          setCurrentUserUID(user.uid);
+          // Initialize empty structures
+          await initializeUserCoupons(user.uid);
+          await initializeUserItems(user.uid);
+          setShowPersonalInfoModal(true);
+        }
       } catch (e: any) {
         setErrors((prev) => ({ ...prev, form: e?.message || 'Failed to create account' }));
       } finally {
@@ -81,6 +93,21 @@ export function SignUpForm() {
       }
     })();
   }
+
+  const handlePersonalInfoSubmit = async (profileData: any) => {
+    if (!currentUserUID) return;
+    
+    setLoading(true);
+    try {
+      await saveUserProfile(currentUserUID, { ...profileData, email });
+      router.replace('/(onboarding)');
+    } catch (e: any) {
+      setErrors((prev) => ({ ...prev, form: 'Failed to save profile: ' + e?.message }));
+    } finally {
+      setLoading(false);
+      setShowPersonalInfoModal(false);
+    }
+  };
 
   return (
     <>
@@ -180,6 +207,17 @@ export function SignUpForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <PersonalInfoModal 
+        visible={showPersonalInfoModal} 
+        onClose={(data) => {
+          if (data) {
+            handlePersonalInfoSubmit(data);
+          } else {
+            router.replace('/(onboarding)');
+          }
+        }}
+        loading={loading}
+      />
     </>
   );
 }

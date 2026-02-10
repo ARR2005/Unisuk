@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
-import React, { useState } from 'react'
+import { getAuth } from 'firebase/auth'
+import { getDatabase, onValue, ref } from 'firebase/database'
+import React, { useEffect, useState } from 'react'
 import { Image, Modal, Pressable, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Layout from '../../components/Layout'
 import { logout as firebaseLogout } from '../../firebaseConfig'
- 
-const DB = require('../../DB.json')
-const userProducts = Object.values(DB.items || {})
 
 // Mock user data. Ideally, this would come from your DB.json file.
 const mockUser = {
@@ -69,6 +68,26 @@ const Profile = () => {
   const [openAccordion, setOpenAccordion] = useState<string | null>(null)
   const [logoutModalVisible, setLogoutModalVisible] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [userProducts, setUserProducts] = useState<any[]>([])
+
+  useEffect(() => {
+    const auth = getAuth()
+    const user = auth.currentUser
+    if (user) {
+      const db = getDatabase()
+      const itemsRef = ref(db, `users/${user.uid}/itemsPosted`)
+      const unsubscribe = onValue(itemsRef, (snapshot) => {
+        const data = snapshot.val()
+        if (data) {
+          const items = Object.keys(data).map((key) => ({ id: key, ...data[key] }))
+          setUserProducts(items)
+        } else {
+          setUserProducts([])
+        }
+      })
+      return () => unsubscribe()
+    }
+  }, [])
 
   const toggleAccordion = (key: string) => {
     setOpenAccordion(openAccordion === key ? null : key)

@@ -1,23 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { getDatabase, onValue, ref } from 'firebase/database';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-    Dimensions,
-    Image,
-    ImageBackground,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-    useColorScheme,
+  Dimensions,
+  Image,
+  ImageBackground,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
 } from 'react-native';
 import background from "../../assets/images/bg_white.png";
 import Layout from '../../components/Layout';
 import { carouselItems } from '../../constants/carouselItems';
 import { categories } from '../../constants/category';
-import { itemsMap, products } from '../../constants/product';
- // Taking first 5 products for the carousel
 
 const { width } = Dimensions.get('window')
 
@@ -26,9 +27,44 @@ const Home = () => {
     const scrollRef = useRef<ScrollView | null>(null)
     const [selectedItem, setSelectedItem] = useState<any | null>(null)
     const [modalVisible, setModalVisible] = useState(false)
+    const [products, setProducts] = useState<any[]>([])
+    const [itemsMap, setItemsMap] = useState<{ [key: string]: any }>({})
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+
+    useEffect(() => {
+      const db = getDatabase()
+      const usersRef = ref(db, 'users')
+      const unsubscribe = onValue(usersRef, (snapshot) => {
+        const data = snapshot.val()
+        const allItems: any[] = []
+        const map: { [key: string]: any } = {}
+
+        if (data) {
+          Object.keys(data).forEach((userId) => {
+            const user = data[userId]
+            if (user.itemsPosted) {
+              Object.keys(user.itemsPosted).forEach((itemId) => {
+                const item = {
+                  id: itemId,
+                  sellerId: userId,
+                  ...user.itemsPosted[itemId],
+                }
+                allItems.push(item)
+                map[itemId] = item
+              })
+            }
+          })
+        }
+        // Sort by newest first (assuming createdAt exists, otherwise default sort)
+        allItems.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        setProducts(allItems)
+        setItemsMap(map)
+      })
+
+      return () => unsubscribe()
+    }, [])
 
     function onScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const x = e.nativeEvent.contentOffset.x
@@ -133,7 +169,7 @@ const Home = () => {
                             <TouchableOpacity
                               className={`w-full ${isDark ? 'border border-gray-600' : 'border border-gray-300'} px-3 py-2.5 rounded-lg ${isDark ? 'active:bg-gray-700' : 'active:bg-gray-50'}`}
                               onPress={() => {
-                                router.push({ pathname: '/(pill)/buy', params: { itemId: p.id } } as any);
+                                router.push({ pathname: '/(pill)/buy', params: { itemId: p.id, sellerId: p.sellerId } } as any);
                               }}
                             >
                               <Text className={`${isDark ? 'text-white' : 'text-gray-900'} text-xs text-center font-semibold`}>Purchase</Text>

@@ -1,14 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { get, getDatabase, ref } from 'firebase/database';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const DB = require('../../DB.json');
 
 export default function BuyScreen() {
-  const { itemId } = useLocalSearchParams();
+  const { itemId, sellerId } = useLocalSearchParams();
   const router = useRouter();
-  const item = useMemo(() => DB.items?.[itemId as string] || null, [itemId]);
+  const [item, setItem] = useState<any>(null);
+
+  useEffect(() => {
+    if (itemId && sellerId) {
+      const db = getDatabase();
+      const itemRef = ref(db, `users/${sellerId}/itemsPosted/${itemId}`);
+      get(itemRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          setItem(snapshot.val());
+        }
+      }).catch(err => console.error("Error fetching item:", err));
+    }
+  }, [itemId, sellerId]);
 
   const transactionFee = Number(DB.transaction_fee ?? 5);
   const [couponCode, setCouponCode] = useState<string>('');

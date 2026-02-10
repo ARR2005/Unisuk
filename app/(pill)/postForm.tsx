@@ -1,6 +1,10 @@
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '@env'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import { getAuth } from 'firebase/auth'
+import { getDatabase, push, ref, serverTimestamp, set } from 'firebase/database'
 import React, { useEffect, useState } from 'react'
-import { Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import '../../firebaseConfig'
 
 // Generate static description based on detected item
 const getStaticDescription = (itemClass: string): string => {
@@ -10,20 +14,22 @@ const getStaticDescription = (itemClass: string): string => {
     'Skirt': 'Stylish skirt in good condition. Versatile piece suitable for casual or formal occasions. Quality fabric and neat finish.',
     'White Shirt': 'Clean white shirt in perfect condition. Versatile classic piece suitable for various occasions. Quality fabric and excellent condition.',
     'UC VEST': 'UC branded vest in excellent condition. Perfect for university events, casual wear, or sports activities. Quality embroidered logo.',
+    'Unknown': 'No description available.',
   }
-  return descriptions[itemClass] || descriptions['Unknown']
+  return descriptions[itemClass] || descriptions['Unknown'] || ''
 }
 
 // Get default price for each item type
 const getDefaultPrice = (itemClass: string): string => {
   const prices: { [key: string]: string } = {
-    'Pe shirt': '250',
-    'Pe pant': '350',
-    'Skirt': '400',
-    'White Shirt': '300',
-    'UC VEST': '500',
+    'Pe shirt': '150',
+    'Pe pant': '200',
+    'Skirt': '180',
+    'White Shirt': '120',
+    'UC VEST': '250',
+    'Unknown': '0',
   }
-  return prices[itemClass] || '0'
+  return prices[itemClass] || prices['Unknown'] || '0'
 }
 
 // Get default tags for item type
@@ -75,13 +81,90 @@ export default function PostForm() {
     setTagText('')
   }
 
-  function publish() {
-    // For now just log and go back
-    console.log({ title, price, description, tags, photo })
-    router.back()
+  const uploadImageToCloudinary = async (uri: string) => {
+    if (!uri) return null
+
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+      throw new Error('Cloudinary configuration is missing. Please check your .env file.')
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', {
+        uri,
+        type: 'image/jpeg',
+        name: 'upload.jpg',
+      } as any)
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error?.message || `Upload failed: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      if (data.error) {
+        throw new Error(data.error.message)
+      }
+
+      console.log('Cloudinary Upload Success:', data.secure_url)
+      return data.secure_url
+    } catch (error: any) {
+      console.error('Cloudinary upload failed:', error)
+      throw new Error(`Image upload failed: ${error.message}`)
+    }
+  }
+
+  async function publish() {
+    const auth = getAuth()
+    const user = auth.currentUser
+    if (!user) {
+      Alert.alert('Error', 'You must be logged in to post.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const imageUrl = photo ? await uploadImageToCloudinary(photo) : null
+      console.log('Image uploaded to Cloudinary:', imageUrl)
+
+      const db = getDatabase()
+      const newItemRef = push(ref(db, `users/${user.uid}/itemsPosted`))
+
+      await set(newItemRef, {
+        title: title || '',
+        image_uri: imageUrl || null,
+        description: description || '',
+        support_images: [],
+        price: parseFloat(price) || 0,
+        type: tags.length > 0 ? tags[0] : 'miscellaneous',
+        quantity: 1,
+        createdAt: serverTimestamp(),
+      })
+
+      router.replace('/(dashboard)/home')
+    } catch (error: any) {
+      console.error('Publish error:', error)
+      if (error.message.includes('PERMISSION_DENIED')) {
+        Alert.alert('Permission Error', 'Database permission denied. Please check your Firebase Realtime Database Rules.')
+      } else {
+        Alert.alert('Error', 'Failed to create listing: ' + error.message)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
+    console.log('Cloudinary Config Status:', { hasCloudName: !!CLOUDINARY_CLOUD_NAME, hasPreset: !!CLOUDINARY_UPLOAD_PRESET })
     if (photo) {
       setLoading(true)
       recognizeImage(detectionClass, detectionConfidence).then((mockData: any) => {

@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams } from 'expo-router'
+import { getDatabase, onValue, ref } from 'firebase/database'
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   Image,
@@ -10,8 +11,6 @@ import {
   View
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
-const DB = require('DB.json')
 
 const categoryIcons: { [key: string]: any } = {
   clothes: 'shirt-outline',
@@ -26,7 +25,32 @@ const bookGenres = ['Fiction', 'Non-Fiction', 'Sci-Fi', 'Textbook', 'Classic']
 const shoeSizes = ['7', '8', '9', '10', '11', '12']
 
 export default function Check() {
-  const items = useMemo(() => Object.values(DB.items || {}), [])
+  const [items, setItems] = useState<any[]>([])
+
+  useEffect(() => {
+    const db = getDatabase()
+    const usersRef = ref(db, 'users')
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      const data = snapshot.val()
+      const allItems: any[] = []
+      if (data) {
+        Object.keys(data).forEach((userId) => {
+          const user = data[userId]
+          if (user.itemsPosted) {
+            Object.keys(user.itemsPosted).forEach((itemId) => {
+              allItems.push({
+                id: itemId,
+                sellerId: userId,
+                ...user.itemsPosted[itemId],
+              })
+            })
+          }
+        })
+      }
+      setItems(allItems)
+    })
+    return () => unsubscribe()
+  }, [])
 
   const types = useMemo(() => Array.from(new Set(items.map((i: any) => {
     if (i.type === 'gadgets') return 'others';
