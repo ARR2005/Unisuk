@@ -1,18 +1,18 @@
 import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,7 @@ import { Text } from '@/components/ui/text';
 import { Link, useRouter } from 'expo-router';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
+import { signUp as firebaseSignUp } from '../firebaseConfig';
 
 export function SignUpForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
@@ -69,18 +70,21 @@ export function SignUpForm() {
     setModalVisible(false);
     setLoading(true);
     setErrors({ email: '', password: '', rePassword: '', form: '' });
-    setTimeout(() => {
-      // Simulate API call
-      console.log('Signed up with:', email, password);
-      // for now, we'll just assume it's successful
-      router.push('/(onboarding)');
-      setLoading(false);
-    }, 2000);
+    (async () => {
+      try {
+        await firebaseSignUp(email, password);
+        router.replace('/(onboarding)');
+      } catch (e: any) {
+        setErrors((prev) => ({ ...prev, form: e?.message || 'Failed to create account' }));
+      } finally {
+        setLoading(false);
+      }
+    })();
   }
 
   return (
     <>
-      <View className="absolute top-[-4] w-full">
+      <View className="w-full">
         <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
           <CardHeader>
             <CardTitle className="text-center text-xl sm:text-left">Create your account</CardTitle>
@@ -179,4 +183,3 @@ export function SignUpForm() {
     </>
   );
 }
-

@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import React, { useState } from 'react'
-import { Image, Modal, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Image, Modal, Pressable, ScrollView, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Layout from '../../components/Layout'
+import { logout as firebaseLogout } from '../../firebaseConfig'
  
 const DB = require('../../DB.json')
 const userProducts = Object.values(DB.items || {})
@@ -73,10 +74,14 @@ const Profile = () => {
     setOpenAccordion(openAccordion === key ? null : key)
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setLogoutModalVisible(false)
-    // In a real app, you'd clear auth tokens here
-    router.replace('/(auth)/login') // Navigate to login and remove back stack
+    try {
+      await firebaseLogout()
+      router.replace('/(auth)/login')
+    } catch (e) {
+      console.error('Logout failed:', e)
+    }
   }
 
   return (
@@ -164,6 +169,7 @@ const Profile = () => {
       {/* Logout Modal */}
       <Modal visible={logoutModalVisible} transparent={true} animationType="fade" onRequestClose={() => setLogoutModalVisible(false)}>
         <View className="flex-1 justify-center items-center bg-black/50 px-4">
+          <Pressable className="absolute inset-0" onPress={() => setLogoutModalVisible(false)} />
           <View className="bg-white rounded-xl p-6 w-full max-w-sm">
             <Text className="text-lg font-bold text-center">Logout</Text>
             <Text className="text-base text-gray-600 text-center my-4">

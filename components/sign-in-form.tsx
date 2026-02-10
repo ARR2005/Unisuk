@@ -1,17 +1,18 @@
 import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Link, useRouter } from 'expo-router';
 import * as React from 'react';
-import { Pressable, type TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, type TextInput, View } from 'react-native';
+import { signIn as firebaseSignIn } from '../firebaseConfig';
 
 export function SignInForm() {
   const router = useRouter();
@@ -43,20 +44,31 @@ export function SignInForm() {
     if (validate()) {
       setLoading(true);
       setErrors({ email: '', password: '', form: '' });
-      setTimeout(() => {
-
-        if (email === 'admin@gmail.com' && password === 'root') {
-          router.push('/(dashboard)/home');
-        } else {
-          setErrors({ email: '', password: '', form: 'Invalid email or password' });
+      (async () => {
+        try {
+          await firebaseSignIn(email, password);
+          router.replace('/(dashboard)/home');
+        } catch (e: any) {
+          const mapAuthError = (err: any) => {
+            const code = err?.code || '';
+            if (code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Incorrect email or password';
+            if (code === 'auth/invalid-email') return 'Invalid email address';
+            return err?.message || 'Authentication failed';
+          };
+          setErrors({ email: '', password: '', form: mapAuthError(e) });
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
-      }, 2000);
+      })();
     }
   }
 
   return (
-    <View className='absolute top-3 w-full'>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={60}
+      className='w-full'
+    >
       <Card className="border-border/0 sm:border-border shadow-none sm:shadow-sm sm:shadow-black/5">
         <CardHeader>
           <CardTitle className="text-center text-xl sm:text-left">Sign in to your app</CardTitle>
@@ -92,7 +104,6 @@ export function SignInForm() {
                   size="sm"
                   className="web:h-fit ml-auto h-4 px-1 py-0 sm:h-4"
                   onPress={() => {
-                    // TODO: Navigate to forgot password screen
                   }}>
                   <Text className="font-normal leading-4">Forgot your password?</Text>
                 </Button>
@@ -117,13 +128,12 @@ export function SignInForm() {
             Don&apos;t have an account?{' '}
             <Pressable
               onPress={() => {
-                // TODO: Navigate to sign up screen
               }}>
             </Pressable>
             <Link href="/(auth)/signup" className='text-sm underline underline-offset-4'>Sign up</Link>
           </Text>
         </CardContent>
       </Card>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
