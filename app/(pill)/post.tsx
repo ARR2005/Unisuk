@@ -1,53 +1,18 @@
 import { CameraView, useCameraPermissions } from 'expo-camera'
-import { CameraView, useCameraPermissions } from 'expo-camera'
 import { useRouter } from 'expo-router'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
-import { detectClothing, getHighConfidencePredictions, loadModel } from '../../lib/imageDetection'
-
-interface DetectionState {
-  isLoading: boolean
-  error: string | null
-  detections: Array<{ className: string; probability: number }>
-}
 
 export default function PostCamera() {
   const [permission, requestPermission] = useCameraPermissions()
   const cameraRef = useRef<any>(null)
   const [taking, setTaking] = useState(false)
-  const [detectionState, setDetectionState] = useState<DetectionState>({
-    isLoading: false,
-    error: null,
-    detections: [],
-  })
   const router = useRouter()
-
-  // Load the model on component mount
-  useEffect(() => {
-    const initializeModel = async () => {
-      try {
-        await loadModel()
-        console.log('Image detection model initialized')
-      } catch (error) {
-        console.error('Failed to initialize model:', error)
-        setDetectionState((prev) => ({
-          ...prev,
-          error: 'Failed to load detection model',
-        }))
-      }
-    }
-
-    initializeModel()
-  }, [])
 
   if (!permission) return <View />
 
   if (!permission.granted) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50 px-6">
-        <Text className="text-center text-gray-800 text-base mb-6 font-medium">We need camera permission to capture photos</Text>
-        <TouchableOpacity onPress={requestPermission} className="bg-blue-600 rounded-lg px-8 py-3 min-w-32 items-center">
-          <Text className="text-white font-semibold text-base">Grant Permission</Text>
       <View className="flex-1 justify-center items-center bg-gray-50 px-6">
         <Text className="text-center text-gray-800 text-base mb-6 font-medium">We need camera permission to capture photos</Text>
         <TouchableOpacity onPress={requestPermission} className="bg-blue-600 rounded-lg px-8 py-3 min-w-32 items-center">
@@ -75,7 +40,6 @@ export default function PostCamera() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
-      <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
       <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
         <View className="flex-1 justify-center mb-56" pointerEvents="none">
           <View className="flex-1" />
