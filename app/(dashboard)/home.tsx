@@ -16,7 +16,8 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
-import background from "../../assets/images/bg_white.png";
+import backgroundBlack from "../../assets/images/bg_dark.png";
+import backgroundWhite from "../../assets/images/bg_white.png";
 import Layout from '../../components/Layout';
 import { carouselItems } from '../../constants/carouselItems';
 import { categories } from '../../constants/category';
@@ -85,7 +86,7 @@ const Home = () => {
   return (
     <>
       <Layout>
-        <ImageBackground source={background} style={{ flex: 1 }}>
+        <ImageBackground source={isDark ? backgroundBlack : backgroundWhite} style={{ flex: 1 }}>
           <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 96  }}>
             {/* Search Bar */}
             <View className="px-5 mt-4">
