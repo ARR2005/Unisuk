@@ -11,6 +11,7 @@ import {
   NativeSyntheticEvent,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -29,6 +30,8 @@ const Home = () => {
     const [modalVisible, setModalVisible] = useState(false)
     const [products, setProducts] = useState<any[]>([])
     const [itemsMap, setItemsMap] = useState<{ [key: string]: any }>({})
+    const [searchQuery, setSearchQuery] = useState('')
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -72,11 +75,29 @@ const Home = () => {
     setActiveIndex(idx)
   }
 
+  // Filter products based on search and category
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory ? p.type === selectedCategory : true
+    return matchesSearch && matchesCategory
+  })
+
   return (
     <>
       <Layout>
         <ImageBackground source={background} style={{ flex: 1 }}>
           <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 96  }}>
+            {/* Search Bar */}
+            <View className="px-5 mt-4">
+              <TextInput
+                placeholder="Search items..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                className={`px-4 py-3 rounded-xl border ${isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white border-gray-200 text-gray-900'}`}
+                placeholderTextColor={isDark ? '#9CA3AF' : '#9CA3AF'}
+              />
+            </View>
+
             {/* Carousel */}
             <View className="mt-4 mb-2">
               <ScrollView
@@ -121,14 +142,12 @@ const Home = () => {
                     <TouchableOpacity
                       key={cat.id}
                       className="items-center mr-6"
-                      onPress={() => {
-                        router.push({ pathname: '/(dashboard)/category', params: { category: cat.type, label: cat.label } } as any);
-                      }}
+                      onPress={() => setSelectedCategory(selectedCategory === cat.type ? null : cat.type)}
                     >
-                      <View className={`w-16 h-16 ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-full items-center justify-center shadow-md ${isDark ? 'border border-gray-700' : 'border border-gray-100'}`}>
-                        <Ionicons name={cat.icon as any} size={28} color={isDark ? '#fff' : '#000'} />
+                      <View className={`w-16 h-16 ${selectedCategory === cat.type ? 'bg-green-600' : (isDark ? 'bg-gray-800' : 'bg-white')} rounded-full items-center justify-center shadow-md ${isDark ? 'border border-gray-700' : 'border border-gray-100'}`}>
+                        <Ionicons name={cat.icon as any} size={28} color={selectedCategory === cat.type ? '#fff' : (isDark ? '#fff' : '#000')} />
                       </View>
-                      <Text className={`text-xs mt-2.5 ${isDark ? 'text-gray-300' : 'text-gray-800'} font-medium text-center`}>{cat.label}</Text>
+                      <Text className={`text-xs mt-2.5 ${selectedCategory === cat.type ? 'text-green-600 font-bold' : (isDark ? 'text-gray-300' : 'text-gray-800')} font-medium text-center`}>{cat.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -136,9 +155,11 @@ const Home = () => {
   
               {/* Product grid */}
               <View className="px-3 pb-6">
-                <Text className={`text-lg font-bold mb-4 ml-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Available Items</Text>
+                <Text className={`text-lg font-bold mb-4 ml-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {searchQuery ? `Search Results (${filteredProducts.length})` : 'Available Items'}
+                </Text>
                 <View className="flex-row flex-wrap gap-3">
-                  {products.map((p) => (
+                  {filteredProducts.map((p) => (
                     <View key={p.id} className="flex-1 min-w-[45%] max-w-[48%]">
                       <View className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-lg overflow-hidden shadow-sm ${isDark ? 'border border-gray-700' : 'border border-gray-100'}`}>
                         <View className={isDark ? 'bg-gray-700' : 'bg-gray-100'} style={{ aspectRatio: 1 }}>
